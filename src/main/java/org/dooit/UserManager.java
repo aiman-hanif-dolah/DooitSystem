@@ -7,14 +7,13 @@ import java.util.concurrent.ExecutionException;
 
 public class UserManager {
     private static final String COLLECTION_NAME = "users";
-    private final Firestore db;
+    private Firestore db;
 
     // Constructor to initialize Firestore
     public UserManager() throws IOException {
         this.db = FirebaseConfig.getFirestore();
     }
 
-    // Register a new user
     public boolean registerUser(User user) {
         if (userExists(user.getEmail())) {
             System.err.println("User already exists with email: " + user.getEmail());
@@ -92,5 +91,16 @@ public class UserManager {
         return null; // Login failed
     }
 
-    // Other methods (getUserByUsername, updateUser, deleteUser) can be added as needed
+    // Method to get the total number of users
+    public int getUserCount() {
+        CollectionReference users = db.collection(COLLECTION_NAME);
+        ApiFuture<QuerySnapshot> query = users.get();
+        try {
+            QuerySnapshot querySnapshot = query.get();
+            return querySnapshot.size();
+        } catch (InterruptedException | ExecutionException e) {
+            System.err.println("Error getting user count: " + e.getMessage());
+            return 0;
+        }
+    }
 }

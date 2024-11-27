@@ -9,6 +9,7 @@ public class Gig {
     private String location;
     private double payRate;
     private String postedBy;
+    private boolean available; // Added field to indicate if gig is still available
 
     // No-argument constructor required for Firestore
     public Gig() {
@@ -21,6 +22,7 @@ public class Gig {
         this.location = location;
         this.payRate = payRate;
         this.postedBy = postedBy;
+        this.available = true; // New gigs are available by default
     }
 
     @PropertyName("gigId")
@@ -83,15 +85,13 @@ public class Gig {
         this.postedBy = postedBy;
     }
 
-    @Override
-    public String toString() {
-        return "Gig{" +
-                "gigId='" + gigId + '\'' +
-                ", title='" + title + '\'' +
-                ", description='" + description + '\'' +
-                ", location='" + location + '\'' +
-                ", payRate=" + payRate +
-                ", postedBy='" + postedBy + '\'' +
-                '}';
+    @PropertyName("available")
+    public boolean isAvailable() {
+        return available;
+    }
+
+    @PropertyName("available")
+    public void setAvailable(boolean available) {
+        this.available = available;
     }
 }

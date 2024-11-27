@@ -5,19 +5,26 @@ import com.google.cloud.firestore.annotation.PropertyName;
 public class Application {
     private String applicationId;
     private String gigId;
-    private String username; // Changed from userId to username
+    private String username;
     private String status;
+    private String reason;     // New field
+    private String experience; // New field
 
     // No-argument constructor required for Firestore
     public Application() {
     }
 
-    public Application(String applicationId, String gigId, String username, String status) {
+    // Updated constructor with new fields
+    public Application(String applicationId, String gigId, String username, String status, String reason, String experience) {
         this.applicationId = applicationId;
         this.gigId = gigId;
         this.username = username;
         this.status = status;
+        this.reason = reason;
+        this.experience = experience;
     }
+
+    // Getters and setters...
 
     @PropertyName("applicationId")
     public String getApplicationId() {
@@ -59,13 +66,23 @@ public class Application {
         this.status = status;
     }
 
-    @Override
-    public String toString() {
-        return "Application{" +
-                "applicationId='" + applicationId + '\'' +
-                ", gigId='" + gigId + '\'' +
-                ", username='" + username + '\'' +
-                ", status='" + status + '\'' +
-                '}';
+    @PropertyName("reason")
+    public String getReason() {
+        return reason;
+    }
+
+    @PropertyName("reason")
+    public void setReason(String reason) {
+        this.reason = reason;
+    }
+
+    @PropertyName("experience")
+    public String getExperience() {
+        return experience;
+    }
+
+    @PropertyName("experience")
+    public void setExperience(String experience) {
+        this.experience = experience;
     }
 }

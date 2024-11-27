@@ -1,24 +1,26 @@
 package org.dooit;
 
+import com.google.cloud.firestore.annotation.Exclude;
 import com.google.cloud.firestore.annotation.PropertyName;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.nio.charset.StandardCharsets;
 
 public class User {
     private String username;
     private String email;
     private String password;
+    private boolean admin; // Added admin field
 
     // No-argument constructor required for Firestore
     public User() {
     }
 
     // Constructor with parameters
-    public User(String username, String email, String password) {
+    public User(String username, String email, String password, boolean admin) {
         this.username = username;
         this.email = email;
-        this.password = hashPassword(password); // Hash only here
+        this.password = hashPassword(password);
+        this.admin = admin;
     }
 
     @PropertyName("username")
@@ -48,36 +50,34 @@ public class User {
 
     @PropertyName("password")
     public void setPassword(String password) {
-        this.password = password; // Do not hash here
+        this.password = password;
     }
 
-    // Password hashing method
+    @PropertyName("admin")
+    public boolean isAdmin() {
+        return admin;
+    }
+
+    @PropertyName("admin")
+    public void setAdmin(boolean admin) {
+        this.admin = admin;
+    }
+
+    // Method to hash the password using SHA-256
+    @Exclude
     public static String hashPassword(String password) {
         try {
-            MessageDigest digest = MessageDigest.getInstance("SHA-256");
-            byte[] encodedHash = digest.digest(password.trim().getBytes(StandardCharsets.UTF_8));
-            return bytesToHex(encodedHash);
+            MessageDigest md = MessageDigest.getInstance("SHA-256");
+            byte[] hashedBytes = md.digest(password.getBytes());
+            // Convert bytes to hexadecimal format
+            StringBuilder sb = new StringBuilder();
+            for (byte b : hashedBytes) {
+                sb.append(String.format("%02x", b));
+            }
+            return sb.toString();
         } catch (NoSuchAlgorithmException e) {
-            throw new RuntimeException("Error hashing password", e);
+            // In case SHA-256 is not available, return the plain password (not recommended)
+            return password;
         }
-    }
-
-    // Helper method
-    private static String bytesToHex(byte[] hash) {
-        StringBuilder hexString = new StringBuilder(2 * hash.length);
-        for (byte b : hash) {
-            String hex = Integer.toHexString(0xff & b);
-            if (hex.length() == 1) hexString.append('0');
-            hexString.append(hex);
-        }
-        return hexString.toString();
-    }
-
-    @Override
-    public String toString() {
-        return "User{" +
-                "username='" + username + '\'' +
-                ", email='" + email + '\'' +
-                '}';
     }
 }
