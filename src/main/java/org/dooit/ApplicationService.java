@@ -29,24 +29,26 @@ public class ApplicationService {
             System.out.println("No applications found.");
         } else {
             System.out.println("\nYour Applications:");
-            for (Application app : applications) {
+            // Display applications in a table format
+            String format = "| %-3s | %-20s | %-20s | %-15s | %-10s |%n";
+            System.out.format("+-----+----------------------+----------------------+-----------------+------------+%n");
+            System.out.format("| No. | Gig Title            | Description          | Location        | Status     |%n");
+            System.out.format("+-----+----------------------+----------------------+-----------------+------------+%n");
+            for (int i = 0; i < applications.size(); i++) {
+                Application app = applications.get(i);
                 Gig gig = gigManager.getGigById(app.getGigId());
                 if (gig != null) {
-                    System.out.printf("Gig Title: %s%nDescription: %s%nLocation: %s%nStatus: %s%n%n",
-                            gig.getTitle(),
-                            gig.getDescription(),
-                            gig.getLocation(),
-                            app.getStatus());
+                    System.out.format(format, i + 1,
+                            truncate(gig.getTitle(), 20),
+                            truncate(gig.getDescription(), 20),
+                            truncate(gig.getLocation(), 15),
+                            truncate(app.getStatus(), 10));
                 } else {
-                    System.out.printf("Gig not found for application. Status: %s%n%n", app.getStatus());
+                    System.out.format(format, i + 1, "N/A", "N/A", "N/A", app.getStatus());
                 }
             }
+            System.out.format("+-----+----------------------+----------------------+-----------------+------------+%n");
         }
-    }
-
-    public boolean hasUserApplied(User currentUser, String gigId) {
-        List<Application> existingApplications = applicationManager.getApplicationsByUsername(currentUser.getUsername());
-        return existingApplications.stream().anyMatch(app -> app.getGigId().equals(gigId));
     }
 
     public void manageApplicationsForGig(Gig selectedGig, User currentUser) {
@@ -65,13 +67,20 @@ public class ApplicationService {
         }
 
         System.out.println("\nApplicants:");
+        // Display applications in a table format
+        String format = "| %-3s | %-15s | %-10s | %-25s | %-25s |%n";
+        System.out.format("+-----+-----------------+------------+---------------------------+---------------------------+%n");
+        System.out.format("| No. | Username        | Status     | Reason for Applying       | Experience               |%n");
+        System.out.format("+-----+-----------------+------------+---------------------------+---------------------------+%n");
         for (int i = 0; i < applications.size(); i++) {
             Application app = applications.get(i);
-            System.out.printf("%d. Username: %s, Status: %s%n", i + 1, app.getUsername(), app.getStatus());
-            System.out.println("Reason for Applying: " + app.getReason());
-            System.out.println("Experience: " + app.getExperience());
-            System.out.println("-----------------------------------");
+            System.out.format(format, i + 1,
+                    truncate(app.getUsername(), 15),
+                    truncate(app.getStatus(), 10),
+                    truncate(app.getReason(), 25),
+                    truncate(app.getExperience(), 25));
         }
+        System.out.format("+-----+-----------------+------------+---------------------------+---------------------------+%n");
 
         System.out.println("\nEnter the number of the applicant to approve (or 0 to cancel): ");
         int choice = InputUtil.getNumericInput(0, applications.size());
@@ -100,6 +109,23 @@ public class ApplicationService {
             System.out.println("Application approved and gig is now closed for applications.");
         } else {
             System.out.println("Failed to approve application.");
+        }
+    }
+
+    public boolean hasUserApplied(User currentUser, String gigId) {
+        List<Application> existingApplications = applicationManager.getApplicationsByUsername(currentUser.getUsername());
+        return existingApplications.stream().anyMatch(app -> app.getGigId().equals(gigId));
+    }
+
+    // Utility method to truncate strings for table display
+    private String truncate(String value, int length) {
+        if (value == null) {
+            return "";
+        }
+        if (value.length() <= length) {
+            return value;
+        } else {
+            return value.substring(0, length - 3) + "...";
         }
     }
 

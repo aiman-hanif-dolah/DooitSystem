@@ -1,5 +1,7 @@
 package org.dooit;
 
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.Scanner;
 
 public class Menu {
@@ -9,7 +11,7 @@ public class Menu {
     private static ApplicationService applicationService = new ApplicationService();
     private static UserManager userManager = UserService.getUserManager();
 
-    public static void showMainMenu(User currentUser) {
+    public static User showMainMenu(User currentUser) {
         while (true) {
             System.out.println("\nMain Menu:");
             System.out.println("1. Create Gig");
@@ -50,13 +52,13 @@ public class Menu {
                         gigService.manageGigsAdmin(currentUser);
                     } else {
                         System.out.println("Logged out.");
-                        return;
+                        return null; // Set currentUser to null
                     }
                 }
                 case 8 -> {
                     if (currentUser.isAdmin()) {
                         System.out.println("Logged out.");
-                        return;
+                        return null; // Set currentUser to null
                     } else {
                         System.out.println("Exiting the application.");
                         System.exit(0);
@@ -82,5 +84,19 @@ public class Menu {
         System.out.println("Total Gigs: " + gigCount);
         System.out.println("Total Applications: " + applicationCount);
         System.out.println("Approved Applications: " + approvedApplications);
+
+        // Write analytics to a text file
+        try (FileWriter writer = new FileWriter("analytics.txt", true)) {
+            writer.write("Analytics Report\n");
+            writer.write("================\n");
+            writer.write("Total Users: " + userCount + "\n");
+            writer.write("Total Gigs: " + gigCount + "\n");
+            writer.write("Total Applications: " + applicationCount + "\n");
+            writer.write("Approved Applications: " + approvedApplications + "\n");
+            writer.write("------------------------\n");
+            System.out.println("Analytics data has been written to 'analytics.txt'.");
+        } catch (IOException e) {
+            System.err.println("Error writing analytics to file: " + e.getMessage());
+        }
     }
 }

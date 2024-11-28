@@ -56,15 +56,20 @@ public class GigService {
         }
 
         System.out.println("\nAvailable Gigs:");
+        // Display gigs in a table format
+        String format = "| %-3s | %-20s | %-15s | %-10s | %-15s |%n";
+        System.out.format("+-----+----------------------+-----------------+------------+-----------------+%n");
+        System.out.format("| No. | Title                | Location        | Pay Rate   | Posted By       |%n");
+        System.out.format("+-----+----------------------+-----------------+------------+-----------------+%n");
         for (int i = 0; i < gigs.size(); i++) {
             Gig gig = gigs.get(i);
-            System.out.printf("%d. %s at %s for RM%.2f per hour by %s%n",
-                    i + 1,
-                    gig.getTitle(),
-                    gig.getLocation(),
-                    gig.getPayRate(),
-                    gig.getPostedBy());
+            System.out.format(format, i + 1,
+                    truncate(gig.getTitle(), 20),
+                    truncate(gig.getLocation(), 15),
+                    String.format("RM%.2f", gig.getPayRate()),
+                    truncate(gig.getPostedBy(), 15));
         }
+        System.out.format("+-----+----------------------+-----------------+------------+-----------------+%n");
 
         System.out.println("\nEnter the number of the gig you want to apply for (or 0 to cancel): ");
         int choice = InputUtil.getNumericInput(0, gigs.size());
@@ -122,15 +127,20 @@ public class GigService {
         }
 
         System.out.println("\nGigs Available for Update:");
+        // Display gigs in a table format
+        String format = "| %-3s | %-20s | %-15s | %-10s | %-15s |%n";
+        System.out.format("+-----+----------------------+-----------------+------------+-----------------+%n");
+        System.out.format("| No. | Title                | Location        | Pay Rate   | Posted By       |%n");
+        System.out.format("+-----+----------------------+-----------------+------------+-----------------+%n");
         for (int i = 0; i < gigs.size(); i++) {
             Gig gig = gigs.get(i);
-            System.out.printf("%d. %s at %s for RM%.2f per hour by %s%n",
-                    i + 1,
-                    gig.getTitle(),
-                    gig.getLocation(),
-                    gig.getPayRate(),
-                    gig.getPostedBy());
+            System.out.format(format, i + 1,
+                    truncate(gig.getTitle(), 20),
+                    truncate(gig.getLocation(), 15),
+                    String.format("RM%.2f", gig.getPayRate()),
+                    truncate(gig.getPostedBy(), 15));
         }
+        System.out.format("+-----+----------------------+-----------------+------------+-----------------+%n");
 
         System.out.println("\nEnter the number of the gig you want to update (or 0 to cancel): ");
         int choice = InputUtil.getNumericInput(0, gigs.size());
@@ -184,15 +194,20 @@ public class GigService {
         }
 
         System.out.println("\nGigs Available for Deletion:");
+        // Display gigs in a table format
+        String format = "| %-3s | %-20s | %-15s | %-10s | %-15s |%n";
+        System.out.format("+-----+----------------------+-----------------+------------+-----------------+%n");
+        System.out.format("| No. | Title                | Location        | Pay Rate   | Posted By       |%n");
+        System.out.format("+-----+----------------------+-----------------+------------+-----------------+%n");
         for (int i = 0; i < gigs.size(); i++) {
             Gig gig = gigs.get(i);
-            System.out.printf("%d. %s at %s for RM%.2f per hour by %s%n",
-                    i + 1,
-                    gig.getTitle(),
-                    gig.getLocation(),
-                    gig.getPayRate(),
-                    gig.getPostedBy());
+            System.out.format(format, i + 1,
+                    truncate(gig.getTitle(), 20),
+                    truncate(gig.getLocation(), 15),
+                    String.format("RM%.2f", gig.getPayRate()),
+                    truncate(gig.getPostedBy(), 15));
         }
+        System.out.format("+-----+----------------------+-----------------+------------+-----------------+%n");
 
         System.out.println("\nEnter the number of the gig you want to delete (or 0 to cancel): ");
         int choice = InputUtil.getNumericInput(0, gigs.size());
@@ -225,10 +240,18 @@ public class GigService {
         }
 
         System.out.println("\nYour Gigs:");
+        // Display gigs in a table format
+        String format = "| %-3s | %-20s | %-15s |%n";
+        System.out.format("+-----+----------------------+-----------------+%n");
+        System.out.format("| No. | Title                | Location        |%n");
+        System.out.format("+-----+----------------------+-----------------+%n");
         for (int i = 0; i < gigs.size(); i++) {
             Gig gig = gigs.get(i);
-            System.out.printf("%d. %s at %s%n", i + 1, gig.getTitle(), gig.getLocation());
+            System.out.format(format, i + 1,
+                    truncate(gig.getTitle(), 20),
+                    truncate(gig.getLocation(), 15));
         }
+        System.out.format("+-----+----------------------+-----------------+%n");
 
         System.out.println("\nEnter the number of the gig you want to manage (or 0 to cancel): ");
         int choice = InputUtil.getNumericInput(0, gigs.size());
@@ -251,10 +274,19 @@ public class GigService {
         }
 
         System.out.println("\nAll Gigs:");
+        // Display gigs in a table format
+        String format = "| %-3s | %-20s | %-15s | %-15s |%n";
+        System.out.format("+-----+----------------------+-----------------+-----------------+%n");
+        System.out.format("| No. | Title                | Location        | Posted By       |%n");
+        System.out.format("+-----+----------------------+-----------------+-----------------+%n");
         for (int i = 0; i < gigs.size(); i++) {
             Gig gig = gigs.get(i);
-            System.out.printf("%d. %s at %s by %s%n", i + 1, gig.getTitle(), gig.getLocation(), gig.getPostedBy());
+            System.out.format(format, i + 1,
+                    truncate(gig.getTitle(), 20),
+                    truncate(gig.getLocation(), 15),
+                    truncate(gig.getPostedBy(), 15));
         }
+        System.out.format("+-----+----------------------+-----------------+-----------------+%n");
 
         System.out.println("\nEnter the number of the gig you want to manage (or 0 to cancel): ");
         int choice = InputUtil.getNumericInput(0, gigs.size());
@@ -266,6 +298,15 @@ public class GigService {
 
         Gig selectedGig = gigs.get(choice - 1);
         applicationService.manageApplicationsForGig(selectedGig, currentUser);
+    }
+
+    // Utility method to truncate strings for table display
+    private String truncate(String value, int length) {
+        if (value.length() <= length) {
+            return value;
+        } else {
+            return value.substring(0, length - 3) + "...";
+        }
     }
 
     // Method to generate a short alphanumeric ID

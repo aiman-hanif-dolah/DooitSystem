@@ -26,6 +26,7 @@ public class UserService {
             switch (choice) {
                 case 1 -> currentUser = registerUser();
                 case 2 -> currentUser = loginUser();
+                default -> System.out.println("Invalid choice. Please try again.");
             }
         }
         return currentUser;
@@ -48,13 +49,17 @@ public class UserService {
             email = scanner.nextLine().trim();
         }
 
+        // Add password validation
         System.out.print("Enter your password: ");
         String password = scanner.nextLine().trim();
+        while (password.isEmpty()) {
+            System.out.println("Password cannot be empty. Try again.");
+            System.out.print("Enter your password: ");
+            password = scanner.nextLine().trim();
+        }
 
-        // For admin registration, prompt for an admin code
-        System.out.print("Enter admin code (leave blank if not an admin): ");
-        String adminCode = scanner.nextLine().trim();
-        boolean isAdmin = "secretAdminCode".equals(adminCode); // Replace with your admin code
+        // Remove admin code prompt
+        boolean isAdmin = false; // Admin status will be set manually in Firestore
 
         // Create a new user
         User user = new User(username, email, password, isAdmin);

@@ -22,4 +22,6 @@ public class InputUtil {
             }
         }
     }
+
+    // Additional utility methods for table formatting can be added here if needed
 }

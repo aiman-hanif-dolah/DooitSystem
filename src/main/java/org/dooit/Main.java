@@ -9,7 +9,7 @@ public class Main {
             if (currentUser == null) {
                 currentUser = UserService.showLoginRegisterMenu();
             } else {
-                Menu.showMainMenu(currentUser);
+                currentUser = Menu.showMainMenu(currentUser);
             }
         }
     }
