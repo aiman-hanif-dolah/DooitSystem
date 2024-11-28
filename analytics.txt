@@ -1,0 +1,7 @@
+Analytics Report
+================
+Total Users: 6
+Total Gigs: 8
+Total Applications: 7
+Approved Applications: 3
+------------------------
