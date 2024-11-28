@@ -17,40 +17,16 @@ public class GigManager {
     }
 
     public boolean createGig(Gig gig) {
-        if (gig != null) {
-            CollectionReference gigs = db.collection(COLLECTION_NAME);
-            DocumentReference gigDoc = gigs.document(gig.getGigId());
-            ApiFuture<WriteResult> result = gigDoc.set(gig);
-            try {
-                result.get(); // Ensure the write completes successfully
-                // Debug statement removed
-                return true;
-            } catch (InterruptedException | ExecutionException e) {
-                System.err.println("Error creating gig: " + e.getMessage());
-                return false;
-            }
-        }
-        return false; // Invalid gig object
-    }
+        DocumentReference gigDoc = db.collection(COLLECTION_NAME).document(gig.getGigId());
 
-    public List<Gig> getAllGigs() {
-        CollectionReference gigs = db.collection(COLLECTION_NAME);
-        ApiFuture<QuerySnapshot> query = gigs.get();
-        List<Gig> gigList = new ArrayList<>();
+        ApiFuture<WriteResult> result = gigDoc.set(gig);
         try {
-            QuerySnapshot querySnapshot = query.get();
-            for (QueryDocumentSnapshot document : querySnapshot.getDocuments()) {
-                Gig gig = document.toObject(Gig.class);
-                if (gig != null) {
-                    gig.setGigId(document.getId());
-                }
-                // Debug statement removed
-                gigList.add(gig);
-            }
+            result.get(); // Ensure the write completes successfully
+            return true;
         } catch (InterruptedException | ExecutionException e) {
-            System.err.println("Error retrieving gigs: " + e.getMessage());
+            System.err.println("Error creating gig: " + e.getMessage());
+            return false;
         }
-        return gigList;
     }
 
     public List<Gig> getAvailableGigs() {
@@ -59,20 +35,100 @@ public class GigManager {
         List<Gig> gigList = new ArrayList<>();
         try {
             QuerySnapshot querySnapshot = query.get();
-            for (QueryDocumentSnapshot document : querySnapshot.getDocuments()) {
+            for (DocumentSnapshot document : querySnapshot.getDocuments()) {
                 Gig gig = document.toObject(Gig.class);
-                if (gig != null) {
-                    gig.setGigId(document.getId());
-                }
                 gigList.add(gig);
             }
         } catch (InterruptedException | ExecutionException e) {
-            System.err.println("Error retrieving available gigs: " + e.getMessage());
+            System.err.println("Error getting available gigs: " + e.getMessage());
+        }
+        return gigList;
+    }
+
+    public List<Gig> getAllGigs() {
+        CollectionReference gigs = db.collection(COLLECTION_NAME);
+        ApiFuture<QuerySnapshot> query = gigs.get();
+        List<Gig> gigList = new ArrayList<>();
+        try {
+            QuerySnapshot querySnapshot = query.get();
+            for (DocumentSnapshot document : querySnapshot.getDocuments()) {
+                Gig gig = document.toObject(Gig.class);
+                gigList.add(gig);
+            }
+        } catch (InterruptedException | ExecutionException e) {
+            System.err.println("Error getting all gigs: " + e.getMessage());
         }
         return gigList;
     }
 
     public List<Gig> getGigsByUser(String username) {
+        CollectionReference gigs = db.collection(COLLECTION_NAME);
+        ApiFuture<QuerySnapshot> query = gigs.whereEqualTo("postedBy", username).get();
+        List<Gig> gigList = new ArrayList<>();
+        try {
+            QuerySnapshot querySnapshot = query.get();
+            for (DocumentSnapshot document : querySnapshot.getDocuments()) {
+                Gig gig = document.toObject(Gig.class);
+                gigList.add(gig);
+            }
+        } catch (InterruptedException | ExecutionException e) {
+            System.err.println("Error getting user's gigs: " + e.getMessage());
+        }
+        return gigList;
+    }
+
+    public Gig getGigById(String gigId) {
+        DocumentReference gigDoc = db.collection(COLLECTION_NAME).document(gigId);
+        ApiFuture<DocumentSnapshot> future = gigDoc.get();
+        try {
+            DocumentSnapshot document = future.get();
+            if (document.exists()) {
+                return document.toObject(Gig.class);
+            }
+        } catch (InterruptedException | ExecutionException e) {
+            System.err.println("Error getting gig by ID: " + e.getMessage());
+        }
+        return null;
+    }
+
+    public boolean updateGig(Gig gig) {
+        DocumentReference gigDoc = db.collection(COLLECTION_NAME).document(gig.getGigId());
+        ApiFuture<WriteResult> future = gigDoc.set(gig);
+        try {
+            future.get();
+            return true;
+        } catch (InterruptedException | ExecutionException e) {
+            System.err.println("Error updating gig: " + e.getMessage());
+            return false;
+        }
+    }
+
+    public boolean deleteGig(String gigId) {
+        DocumentReference gigDoc = db.collection(COLLECTION_NAME).document(gigId);
+        ApiFuture<WriteResult> future = gigDoc.delete();
+        try {
+            future.get();
+            return true;
+        } catch (InterruptedException | ExecutionException e) {
+            System.err.println("Error deleting gig: " + e.getMessage());
+            return false;
+        }
+    }
+
+    // Method to get the total number of gigs
+    public int getGigCount() {
+        CollectionReference gigs = db.collection(COLLECTION_NAME);
+        ApiFuture<QuerySnapshot> query = gigs.get();
+        try {
+            QuerySnapshot querySnapshot = query.get();
+            return querySnapshot.size();
+        } catch (InterruptedException | ExecutionException e) {
+            System.err.println("Error getting gig count: " + e.getMessage());
+            return 0;
+        }
+    }
+
+    public List<Gig> getGigsByUsername(String username) {
         CollectionReference gigs = db.collection(COLLECTION_NAME);
         ApiFuture<QuerySnapshot> query = gigs.whereEqualTo("postedBy", username).get();
         List<Gig> gigList = new ArrayList<>();
@@ -86,77 +142,8 @@ public class GigManager {
                 gigList.add(gig);
             }
         } catch (InterruptedException | ExecutionException e) {
-            System.err.println("Error retrieving user's gigs: " + e.getMessage());
+            System.err.println("Error retrieving gigs by username: " + e.getMessage());
         }
         return gigList;
-    }
-
-    public Gig getGigById(String gigId) {
-        if (gigId == null || gigId.isEmpty()) {
-            return null;
-        }
-        DocumentReference gigDoc = db.collection(COLLECTION_NAME).document(gigId);
-        ApiFuture<DocumentSnapshot> future = gigDoc.get();
-        try {
-            DocumentSnapshot document = future.get();
-            if (document.exists()) {
-                Gig gig = document.toObject(Gig.class);
-                if (gig != null) {
-                    gig.setGigId(document.getId());
-                }
-                // Debug statement removed
-                return gig;
-            } else {
-                System.err.println("No gig found with gigId: " + gigId);
-            }
-        } catch (InterruptedException | ExecutionException e) {
-            System.err.println("Error retrieving gig: " + e.getMessage());
-        }
-        return null;
-    }
-
-    public boolean updateGig(Gig updatedGig) {
-        if (updatedGig != null) {
-            DocumentReference gigDoc = db.collection(COLLECTION_NAME).document(updatedGig.getGigId());
-            ApiFuture<WriteResult> result = gigDoc.set(updatedGig);
-            try {
-                result.get();
-                // Debug statement removed
-                return true;
-            } catch (InterruptedException | ExecutionException e) {
-                System.err.println("Error updating gig: " + e.getMessage());
-                return false;
-            }
-        }
-        return false;
-    }
-
-    public boolean deleteGig(String gigId) {
-        if (gigId != null && !gigId.isEmpty()) {
-            DocumentReference gigDoc = db.collection(COLLECTION_NAME).document(gigId);
-            ApiFuture<WriteResult> writeResult = gigDoc.delete();
-            try {
-                writeResult.get();
-                // Debug statement removed
-                return true;
-            } catch (InterruptedException | ExecutionException e) {
-                System.err.println("Error deleting gig: " + e.getMessage());
-                return false;
-            }
-        }
-        return false;
-    }
-
-    // Method to get total number of gigs
-    public int getGigCount() {
-        CollectionReference gigs = db.collection(COLLECTION_NAME);
-        ApiFuture<QuerySnapshot> query = gigs.get();
-        try {
-            QuerySnapshot querySnapshot = query.get();
-            return querySnapshot.size();
-        } catch (InterruptedException | ExecutionException e) {
-            System.err.println("Error getting gig count: " + e.getMessage());
-            return 0;
-        }
     }
 }

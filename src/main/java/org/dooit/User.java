@@ -2,16 +2,17 @@ package org.dooit;
 
 import com.google.cloud.firestore.annotation.Exclude;
 import com.google.cloud.firestore.annotation.PropertyName;
+
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
 public class User {
     private String username;
     private String email;
-    private String password;
-    private boolean admin; // Added admin field
+    private String password; // Store hashed password
+    private boolean admin;
 
-    // No-argument constructor required for Firestore
+    // No-argument constructor required for Firestore serialization
     public User() {
     }
 

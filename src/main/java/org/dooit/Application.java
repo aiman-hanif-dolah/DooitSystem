@@ -7,14 +7,13 @@ public class Application {
     private String gigId;
     private String username;
     private String status;
-    private String reason;     // New field
-    private String experience; // New field
+    private String reason;
+    private String experience;
 
-    // No-argument constructor required for Firestore
+    // No-argument constructor required for Firestore serialization
     public Application() {
     }
 
-    // Updated constructor with new fields
     public Application(String applicationId, String gigId, String username, String status, String reason, String experience) {
         this.applicationId = applicationId;
         this.gigId = gigId;
@@ -23,8 +22,6 @@ public class Application {
         this.reason = reason;
         this.experience = experience;
     }
-
-    // Getters and setters...
 
     @PropertyName("applicationId")
     public String getApplicationId() {

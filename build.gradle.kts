@@ -14,6 +14,8 @@ dependencies {
     // Firebase Admin SDK
     implementation("com.google.firebase:firebase-admin:9.1.1")
 
+    implementation ("org.json:json:20210307")
+
     // Google Cloud Firestore SDK
     implementation("com.google.cloud:google-cloud-firestore:3.5.0")
 

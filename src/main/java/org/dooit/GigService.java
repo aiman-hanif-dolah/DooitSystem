@@ -220,9 +220,9 @@ public class GigService {
         Gig selectedGig = gigs.get(choice - 1);
 
         // Confirm deletion
-        System.out.printf("Are you sure you want to delete the gig '%s'? (y/n): ", selectedGig.getTitle());
-        String confirmation = scanner.nextLine().trim().toLowerCase();
-        if (!confirmation.equals("y")) {
+        System.out.printf("Are you sure you want to delete the gig '%s'? (1 for Yes, 0 for No): ", selectedGig.getTitle());
+        int confirmation = InputUtil.getNumericInput(0, 1);
+        if (confirmation != 1) {
             System.out.println("Deletion cancelled.");
             return;
         }
@@ -302,6 +302,9 @@ public class GigService {
 
     // Utility method to truncate strings for table display
     private String truncate(String value, int length) {
+        if (value == null) {
+            return "";
+        }
         if (value.length() <= length) {
             return value;
         } else {

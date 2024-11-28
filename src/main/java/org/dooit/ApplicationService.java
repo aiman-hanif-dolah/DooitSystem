@@ -1,7 +1,14 @@
 package org.dooit;
 
+import java.io.IOException;
+import java.net.URI;
+import java.net.http.*;
 import java.util.List;
 import java.util.Scanner;
+
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 
 public class ApplicationService {
 
@@ -59,15 +66,7 @@ public class ApplicationService {
             return;
         }
 
-        // Check if an application for this gig is already approved
-        boolean isApproved = applications.stream().anyMatch(app -> app.getStatus().equals("Approved"));
-        if (isApproved) {
-            System.out.println("An application for this gig has already been approved.");
-            return;
-        }
-
         System.out.println("\nApplicants:");
-        // Display applications in a table format
         String format = "| %-3s | %-15s | %-10s | %-25s | %-25s |%n";
         System.out.format("+-----+-----------------+------------+---------------------------+---------------------------+%n");
         System.out.format("| No. | Username        | Status     | Reason for Applying       | Experience               |%n");
@@ -82,6 +81,14 @@ public class ApplicationService {
         }
         System.out.format("+-----+-----------------+------------+---------------------------+---------------------------+%n");
 
+        try {
+            String recommendation = getRecommendationFromOpenAI(selectedGig, applications);
+            System.out.println("\nRecommendation from AI:");
+            System.out.println(recommendation);
+        } catch (Exception e) {
+            System.err.println("Error getting recommendation: " + e.getMessage());
+        }
+
         System.out.println("\nEnter the number of the applicant to approve (or 0 to cancel): ");
         int choice = InputUtil.getNumericInput(0, applications.size());
 
@@ -92,13 +99,12 @@ public class ApplicationService {
 
         Application selectedApplication = applications.get(choice - 1);
 
-        // Check if the application is already approved
+        // Approve the application
         if (selectedApplication.getStatus().equals("Approved")) {
             System.out.println("This application is already approved.");
             return;
         }
 
-        // Approve the application
         selectedApplication.setStatus("Approved");
         boolean success = applicationManager.updateApplication(selectedApplication);
 
@@ -112,6 +118,70 @@ public class ApplicationService {
         }
     }
 
+    // Updated method using Gson
+    private String getRecommendationFromOpenAI(Gig gig, List<Application> applications) throws IOException, InterruptedException {
+        // Hardcoded API Key
+        String apiKey = "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"; // Replace with your actual API key
+
+        // Construct the prompt
+        StringBuilder promptBuilder = new StringBuilder();
+        promptBuilder.append("As an expert recruiter, recommend the best applicant for the following gig:\n");
+        promptBuilder.append("Gig Title: ").append(gig.getTitle()).append("\n");
+        promptBuilder.append("Gig Description: ").append(gig.getDescription()).append("\n\n");
+        promptBuilder.append("Applicants:\n");
+        for (Application app : applications) {
+            promptBuilder.append("- Username: ").append(app.getUsername()).append("\n");
+            promptBuilder.append("  Reason: ").append(app.getReason()).append("\n");
+            promptBuilder.append("  Experience: ").append(app.getExperience()).append("\n\n");
+        }
+        promptBuilder.append("Provide a recommendation on which applicant is the best fit for the gig and explain why.");
+
+        String prompt = promptBuilder.toString();
+
+        // Prepare the API request
+        HttpClient client = HttpClient.newHttpClient();
+        JsonObject jsonRequest = new JsonObject();
+        jsonRequest.addProperty("model", "gpt-3.5-turbo");
+
+        JsonArray messages = new JsonArray();
+
+        JsonObject systemMessage = new JsonObject();
+        systemMessage.addProperty("role", "system");
+        systemMessage.addProperty("content", "You are an expert recruiter helping to select the best applicant for a job.");
+        messages.add(systemMessage);
+
+        JsonObject userMessage = new JsonObject();
+        userMessage.addProperty("role", "user");
+        userMessage.addProperty("content", prompt);
+        messages.add(userMessage);
+
+        jsonRequest.add("messages", messages);
+        jsonRequest.addProperty("max_tokens", 250);
+        jsonRequest.addProperty("temperature", 0.7);
+
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create("https://api.openai.com/v1/chat/completions"))
+                .header("Content-Type", "application/json")
+                .header("Authorization", "Bearer " + apiKey)
+                .POST(HttpRequest.BodyPublishers.ofString(jsonRequest.toString()))
+                .build();
+
+        HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+
+        if (response.statusCode() == 200) {
+            JsonObject jsonResponse = JsonParser.parseString(response.body()).getAsJsonObject();
+            String aiInsights = jsonResponse
+                    .getAsJsonArray("choices")
+                    .get(0).getAsJsonObject()
+                    .getAsJsonObject("message")
+                    .get("content")
+                    .getAsString()
+                    .trim();
+            return aiInsights;
+        } else {
+            throw new IOException("OpenAI API request failed with status code " + response.statusCode() + ": " + response.body());
+        }
+    }
     public boolean hasUserApplied(User currentUser, String gigId) {
         List<Application> existingApplications = applicationManager.getApplicationsByUsername(currentUser.getUsername());
         return existingApplications.stream().anyMatch(app -> app.getGigId().equals(gigId));

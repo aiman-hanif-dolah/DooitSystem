@@ -10,18 +10,16 @@ public class InputUtil {
         int choice;
         while (true) {
             try {
-                System.out.print("Enter choice (" + min + "-" + max + "): ");
-                choice = Integer.parseInt(scanner.nextLine());
+                System.out.print("Respond (" + min + "-" + max + "): ");
+                String input = scanner.nextLine().trim();
+                choice = Integer.parseInt(input);
                 if (choice >= min && choice <= max) {
                     return choice;
                 } else {
-                    System.out.println("Invalid choice. Please try again.");
+                    System.out.println("Invalid choice. Please enter a number between " + min + " and " + max + ".");
                 }
             } catch (NumberFormatException e) {
-                System.out.println("Invalid input. Please enter a number.");
+                System.out.println("Invalid input. Please enter a valid number.");
             }
         }
-    }
-
-    // Additional utility methods for table formatting can be added here if needed
-}
+    }}
