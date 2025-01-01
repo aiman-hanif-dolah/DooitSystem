@@ -12,8 +12,7 @@ public class Gig {
     private boolean available;
 
     // No-argument constructor required for Firestore serialization
-    public Gig() {
-    }
+    public Gig() {}
 
     public Gig(String gigId, String title, String description, String location, double payRate, String postedBy) {
         this.gigId = gigId;
@@ -22,7 +21,7 @@ public class Gig {
         this.location = location;
         this.payRate = payRate;
         this.postedBy = postedBy;
-        this.available = true; // Gigs are available by default
+        this.available = true;
     }
 
     @PropertyName("gigId")

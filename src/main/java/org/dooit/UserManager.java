@@ -2,6 +2,7 @@ package org.dooit;
 
 import com.google.api.core.ApiFuture;
 import com.google.cloud.firestore.*;
+
 import java.io.IOException;
 import java.util.concurrent.ExecutionException;
 
@@ -14,7 +15,11 @@ public class UserManager {
         this.db = FirebaseConfig.getFirestore();
     }
 
+    // Register a user (ensuring email normalization)
     public boolean registerUser(User user) {
+        // Normalize email to lowercase
+        user.setEmail(user.getEmail().toLowerCase());
+
         if (userExists(user.getEmail())) {
             System.err.println("User already exists with email: " + user.getEmail());
             return false;
@@ -24,9 +29,7 @@ public class UserManager {
             return false;
         }
 
-        // Use the username as the document name
         DocumentReference userDoc = db.collection(COLLECTION_NAME).document(user.getUsername());
-
         ApiFuture<WriteResult> result = userDoc.set(user);
         try {
             result.get(); // Ensure the write completes successfully
@@ -37,7 +40,31 @@ public class UserManager {
         }
     }
 
-    // Check if a user exists by email
+    // Login a user by email and password
+    public User loginUser(String email, String password) {
+        email = email.toLowerCase(); // Normalize email for case-insensitive checks
+        CollectionReference users = db.collection(COLLECTION_NAME);
+        ApiFuture<QuerySnapshot> query = users.whereEqualTo("email", email).get();
+
+        try {
+            QuerySnapshot querySnapshot = query.get();
+            if (!querySnapshot.isEmpty()) {
+                User user = querySnapshot.getDocuments().get(0).toObject(User.class);
+                if (user != null && User.hashPassword(password).equals(user.getPassword())) {
+                    return user; // Login successful
+                } else {
+                    System.err.println("Invalid password for email: " + email);
+                }
+            } else {
+                System.err.println("No user found with email: " + email);
+            }
+        } catch (InterruptedException | ExecutionException e) {
+            System.err.println("Error during login: " + e.getMessage());
+        }
+        return null; // Login failed
+    }
+
+    // Private method to check if a user exists by email
     private boolean userExists(String email) {
         CollectionReference users = db.collection(COLLECTION_NAME);
         ApiFuture<QuerySnapshot> query = users.whereEqualTo("email", email).get();
@@ -50,7 +77,7 @@ public class UserManager {
         }
     }
 
-    // Check if a user exists by username
+    // Private method to check if a user exists by username
     private boolean userExistsByUsername(String username) {
         DocumentReference userDoc = db.collection(COLLECTION_NAME).document(username);
         ApiFuture<DocumentSnapshot> future = userDoc.get();
@@ -61,34 +88,6 @@ public class UserManager {
             System.err.println("Error checking if username exists: " + e.getMessage());
             return false;
         }
-    }
-
-    // Login user by verifying email and password
-    public User loginUser(String email, String password) {
-        try {
-            CollectionReference users = db.collection(COLLECTION_NAME);
-            ApiFuture<QuerySnapshot> query = users.whereEqualTo("email", email).get();
-            QuerySnapshot querySnapshot = query.get();
-
-            if (!querySnapshot.isEmpty()) {
-                User user = querySnapshot.getDocuments().get(0).toObject(User.class);
-
-                // Hash the entered password
-                String hashedPassword = User.hashPassword(password.trim());
-
-                // Compare the hashed input with the stored hashed password
-                if (user.getPassword().equals(hashedPassword)) {
-                    return user; // Login successful
-                } else {
-                    System.err.println("Invalid password for email: " + email);
-                }
-            } else {
-                System.err.println("No user found with email: " + email);
-            }
-        } catch (InterruptedException | ExecutionException e) {
-            System.err.println("Error logging in user: " + e.getMessage());
-        }
-        return null; // Login failed
     }
 
     // Method to get the total number of users
@@ -102,5 +101,15 @@ public class UserManager {
             System.err.println("Error getting user count: " + e.getMessage());
             return 0;
         }
+    }
+
+    // Public method to check if a user exists by email
+    public boolean doesUserExistByEmail(String email) {
+        return userExists(email.toLowerCase()); // Normalize email to lowercase
+    }
+
+    // Public method to check if a user exists by username
+    public boolean doesUserExistByUsername(String username) {
+        return userExistsByUsername(username);
     }
 }

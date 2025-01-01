@@ -6,20 +6,30 @@ import com.google.cloud.firestore.annotation.PropertyName;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
-public class User {
+public class User extends BaseEntity {
     private String username;
     private String email;
     private String password; // Store hashed password
     private boolean admin;
 
-    // No-argument constructor required for Firestore serialization
+    /**
+     * No-argument constructor required by Firestore.
+     * This allows Firestore to instantiate the class via reflection.
+     */
     public User() {
+        super();
+        // no-argument constructor body can be empty
     }
 
-    // Constructor with parameters
+    /**
+     * Parameterized constructor.
+     * Note: This hashes the 'password' argument before storing it in 'this.password'.
+     */
     public User(String username, String email, String password, boolean admin) {
+        super();
         this.username = username;
         this.email = email;
+        // We hash here so it gets stored as a hashed string in Firestore.
         this.password = hashPassword(password);
         this.admin = admin;
     }
@@ -64,21 +74,28 @@ public class User {
         this.admin = admin;
     }
 
-    // Method to hash the password using SHA-256
+    /**
+     * Hashes the input password using SHA-256.
+     * Marked @Exclude so Firestore won't try to serialize or deserialize it.
+     */
     @Exclude
     public static String hashPassword(String password) {
         try {
             MessageDigest md = MessageDigest.getInstance("SHA-256");
             byte[] hashedBytes = md.digest(password.getBytes());
-            // Convert bytes to hexadecimal format
             StringBuilder sb = new StringBuilder();
             for (byte b : hashedBytes) {
                 sb.append(String.format("%02x", b));
             }
             return sb.toString();
         } catch (NoSuchAlgorithmException e) {
-            // In case SHA-256 is not available, return the plain password (not recommended)
+            // Fallback to returning the original password (not recommended for security)
             return password;
         }
+    }
+
+    @Override
+    public String getDetails() {
+        return "Username: " + username + ", Email: " + email + ", Admin: " + admin;
     }
 }
