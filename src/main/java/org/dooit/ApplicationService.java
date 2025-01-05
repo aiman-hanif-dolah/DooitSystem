@@ -174,7 +174,7 @@ public class ApplicationService {
     // Updated method using Gson
     private String getRecommendationFromOpenAI(Gig gig, List<Application> applications) throws IOException, InterruptedException {
         // Hardcoded API Key
-        String apiKey = "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"; // Replace with your actual API key
+        String apiKey = "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"; // Replace with your actual OpenAI API key
 
         // Construct the prompt
         StringBuilder promptBuilder = new StringBuilder();

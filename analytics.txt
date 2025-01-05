@@ -1,27 +1,26 @@
 +---------------------------+-----------------+
 | Metric                    | Value           |
 +---------------------------+-----------------+
-| Total Users               | 9               |
-| Total Gigs                | 3               |
-| Total Applications        | 3               |
-| Approved Applications     | 2               |
+| Total Users               | 20              |
+| Total Gigs                | 19              |
+| Total Applications        | 13              |
+| Approved Applications     | 7               |
 +---------------------------+-----------------+
 
 +-------------------------------+
 |          AI Insights          |
 +-------------------------------+
-Based on the provided platform analytics data, here is an analysis of the platform's performance:
+Based on the provided platform analytics data, we can derive the following insights:
 
 1. User Engagement:
-- The platform has a total of 9 users, which is a relatively small user base. This could indicate low user engagement or limited visibility of the platform.
-- To improve user engagement, consider implementing strategies such as personalized recommendations, targeted marketing campaigns, and user feedback surveys to understand user needs and preferences better.
+- With 20 total users, the platform seems to have decent user adoption. However, the engagement level of these users needs improvement as indicated by the lower number of gig postings compared to the total number of users.
+- To improve user engagement, the platform can focus on personalized recommendations, notifications for new gigs, and enhancing the user experience to encourage users to actively participate in posting gigs or applying for them.
 
 2. Gig Postings:
-- With a total of 3 gigs on the platform, there is limited content available for users to engage with. This could lead to a lack of variety and opportunities for users.
-- Increasing the number of gig postings can enhance user experience and provide more options for users to explore and engage with.
-- Encourage users to post gigs by offering incentives or promoting the benefits of showcasing their services on the platform.
+- With only 19 total gigs posted on the platform, there is a gap between the number of users and the number of gigs available. This could indicate that users are either not finding the platform useful for posting gigs or there may be usability issues hindering gig postings.
+- To improve gig postings, the platform can incentivize users to post gigs through rewards or promotions, provide easy-to-use tools for posting gigs, and actively promote the platform to attract more gig posters.
 
-3. Application Approval Rate:
-- Out of 3 total applications received, 2 have been approved, indicating a 66.7% approval rate. This suggests that the platform has a relatively high approval rate, which can be a positive aspect for attracting new users and gig posters.
-- Ensure that the application review process is efficient and transparent to maintain a high approval rate and build trust among
+3. Applications:
+- Out of the 13 total applications submitted on the platform, only 7 were approved. This could indicate that there may be a mismatch between the quality of applications and the requirements set by gig posters.
+- To improve the
 +-------------------------------+

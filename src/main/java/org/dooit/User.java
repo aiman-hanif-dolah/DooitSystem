@@ -9,27 +9,17 @@ import java.security.NoSuchAlgorithmException;
 public class User extends BaseEntity {
     private String username;
     private String email;
-    private String password; // Store hashed password
+    private String password;
     private boolean admin;
 
-    /**
-     * No-argument constructor required by Firestore.
-     * This allows Firestore to instantiate the class via reflection.
-     */
     public User() {
         super();
-        // no-argument constructor body can be empty
     }
 
-    /**
-     * Parameterized constructor.
-     * Note: This hashes the 'password' argument before storing it in 'this.password'.
-     */
     public User(String username, String email, String password, boolean admin) {
         super();
         this.username = username;
         this.email = email;
-        // We hash here so it gets stored as a hashed string in Firestore.
         this.password = hashPassword(password);
         this.admin = admin;
     }
@@ -74,10 +64,6 @@ public class User extends BaseEntity {
         this.admin = admin;
     }
 
-    /**
-     * Hashes the input password using SHA-256.
-     * Marked @Exclude so Firestore won't try to serialize or deserialize it.
-     */
     @Exclude
     public static String hashPassword(String password) {
         try {
@@ -89,13 +75,19 @@ public class User extends BaseEntity {
             }
             return sb.toString();
         } catch (NoSuchAlgorithmException e) {
-            // Fallback to returning the original password (not recommended for security)
             return password;
         }
     }
 
+    @Exclude
     @Override
     public String getDetails() {
         return "Username: " + username + ", Email: " + email + ", Admin: " + admin;
+    }
+
+    // Add this stub setter to suppress Firestore warning
+    @PropertyName("details")
+    public void setDetails(String details) {
+        // This setter does nothing, added to suppress Firestore warnings.
     }
 }

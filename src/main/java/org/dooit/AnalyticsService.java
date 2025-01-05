@@ -91,7 +91,7 @@ public class AnalyticsService {
                         Provide an analysis of the platform's performance and suggest ways to improve user engagement and gig postings.""",
                 userCount, gigCount, applicationCount, approvedApplications);
 
-        String apiKey = "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"; // Replace with your actual OpenAI API key
+        String apiKey = "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"; // Replace with your actual OpenAI API key
         HttpClient client = HttpClient.newHttpClient();
 
         JsonObject jsonRequest = new JsonObject();

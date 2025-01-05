@@ -2,7 +2,7 @@ package org.dooit;
 
 import java.io.FileWriter;
 import java.io.IOException;
-
+import java.util.Comparator;
 import java.util.List;
 import java.util.Random;
 import java.util.Scanner;
@@ -37,40 +37,68 @@ public class GigService {
         System.out.println("+-----+---------------------------------------+");
         System.out.println("Fill in the details below (enter '0' anytime to return to menu).\033[0m");
 
-        System.out.print("\033[33m\nEnter gig title: \033[0m");
-        String title = scanner.nextLine().trim();
-        if (title.equals("0")) {
-            System.out.println("\033[33mReturning to menu...\033[0m");
-            return;
+        String title;
+        while (true) {
+            System.out.print("\033[33m\nEnter gig title (at least 3 characters and must include alphabets): \033[0m");
+            title = scanner.nextLine().trim();
+            if (title.equals("0")) {
+                System.out.println("\033[33mReturning to menu...\033[0m");
+                return;
+            }
+            if (title.length() >= 3 && title.matches(".*[a-zA-Z]+.*")) {
+                break;
+            } else {
+                System.out.println("\033[33mInvalid input. Title must be at least 3 characters long and include at least one alphabetic character.\033[0m");
+            }
         }
 
-        System.out.print("\033[33mEnter gig description: \033[0m");
-        String description = scanner.nextLine().trim();
-        if (description.equals("0")) {
-            System.out.println("\033[33mReturning to menu...\033[0m");
-            return;
+        String description;
+        while (true) {
+            System.out.print("\033[33mEnter gig description (at least 5 characters and must include alphabets): \033[0m");
+            description = scanner.nextLine().trim();
+            if (description.equals("0")) {
+                System.out.println("\033[33mReturning to menu...\033[0m");
+                return;
+            }
+            if (description.length() >= 5 && description.matches(".*[a-zA-Z]+.*")) {
+                break;
+            } else {
+                System.out.println("\033[33mInvalid input. Description must be at least 5 characters long and include at least one alphabetic character.\033[0m");
+            }
         }
 
-        System.out.print("\033[33mEnter location: \033[0m");
-        String location = scanner.nextLine().trim();
-        if (location.equals("0")) {
-            System.out.println("\033[33mReturning to menu...\033[0m");
-            return;
+        String location;
+        while (true) {
+            System.out.print("\033[33mEnter location (at least 3 characters and must include alphabets): \033[0m");
+            location = scanner.nextLine().trim();
+            if (location.equals("0")) {
+                System.out.println("\033[33mReturning to menu...\033[0m");
+                return;
+            }
+            if (location.length() >= 3 && location.matches(".*[a-zA-Z]+.*")) {
+                break;
+            } else {
+                System.out.println("\033[33mInvalid input. Location must be at least 3 characters long and include at least one alphabetic character.\033[0m");
+            }
         }
 
         double payRate;
         while (true) {
-            System.out.print("\033[33mEnter pay rate per hour in RM (numeric value): \033[0m");
+            System.out.print("\033[33mEnter pay rate per hour in RM (numeric value, minimum RM1): \033[0m");
             String payRateInput = scanner.nextLine().trim();
-            if (payRateInput.equals("0")) {
-                System.out.println("\033[33mReturning to menu...\033[0m");
-                return;
-            }
             try {
                 payRate = Double.parseDouble(payRateInput);
-                break;
+                if (payRate >= 1) {
+                    break;
+                } else {
+                    System.out.println("\033[33mPay rate must be at least RM1. Please try again.\033[0m");
+                }
             } catch (NumberFormatException e) {
-                System.out.println("\033[33mInvalid input. Please enter a numeric value for the pay rate.\033[0m");
+                if (payRateInput.equals("0")) {
+                    System.out.println("\033[33mReturning to menu...\033[0m");
+                    return;
+                }
+                System.out.println("\033[33mInvalid input. Please enter a valid numeric value for the pay rate.\033[0m");
             }
         }
 
@@ -83,14 +111,11 @@ public class GigService {
 
         if (firestoreSuccess) {
             System.out.println("\033[33mGig created successfully!\033[0m");
-
-            // Save to CSV
             saveGigToCSV(gig);
         } else {
             System.out.println("\033[33mFailed to create gig in Firestore.\033[0m");
         }
     }
-
     private void saveGigToCSV(Gig gig) {
         String filePath = "gigs.csv";
         boolean headerWritten = false;
@@ -126,6 +151,32 @@ public class GigService {
             return;
         }
 
+        // Display sorting options
+        System.out.println("\033[33mChoose sorting order:");
+        System.out.println("0. Back to Menu");
+        System.out.println("1. By Pay Rate (Descending)");
+        System.out.println("2. By Title (Alphabetical)");
+        System.out.println("3. By Location (Alphabetical)");
+        System.out.println("4. By Posted By (Alphabetical)");
+        System.out.println("5. Default Order (No Sorting)");
+        System.out.print("Enter your choice: \033[0m");
+        int sortOption = InputUtil.getNumericInput(0, 5);
+
+        // Apply sorting or return to menu
+        switch (sortOption) {
+            case 0 -> {
+                System.out.println("\033[33mReturning to menu...\033[0m");
+                return; // Exit the method to return to the menu
+            }
+            case 1 -> gigs.sort((g1, g2) -> Double.compare(g2.getPayRate(), g1.getPayRate()));
+            case 2 -> gigs.sort(Comparator.comparing(Gig::getTitle));
+            case 3 -> gigs.sort(Comparator.comparing(Gig::getLocation));
+            case 4 -> gigs.sort(Comparator.comparing(Gig::getPostedBy));
+            case 5 -> System.out.println("\033[33mDisplaying gigs in the default order.\033[0m");
+            default -> System.out.println("\033[33mInvalid option. Displaying unsorted gigs.\033[0m");
+        }
+
+        // Display sorted gigs
         System.out.println("\033[95m+---------------------------------------------+");
         System.out.println("|              AVAILABLE GIGS                |");
         System.out.println("+-----+----------------------+-----------------+------------+-----------------+");
@@ -153,7 +204,6 @@ public class GigService {
         }
 
         System.out.println("\033[93m\nGigs Available for Update:");
-        // Display gigs in a table format
         String format = "| %-3s | %-20s | %-15s | %-10s | %-15s |%n";
         System.out.format("+-----+----------------------+-----------------+------------+-----------------+%n");
         System.out.format("| No. | Title                | Location        | Pay Rate   | Posted By       |%n");
@@ -179,47 +229,46 @@ public class GigService {
 
         Gig selectedGig = gigs.get(choice - 1);
 
-        // Display selected gig details
-        System.out.println("\033[93m+---------------------------------------------+");
-        System.out.println("|               SELECTED GIG DETAILS         |");
-        System.out.println("+---------------------------------------------+");
-        System.out.format("| %-15s: %-37s |%n", "Title", selectedGig.getTitle());
-        System.out.format("| %-15s: %-37s |%n", "Location", selectedGig.getLocation());
-        System.out.format("| %-15s: RM%-35.2f |%n", "Pay Rate", selectedGig.getPayRate());
-        System.out.format("| %-15s: %-37s |%n", "Posted By", selectedGig.getPostedBy());
-        System.out.format("| %-15s: %-37s |%n", "Description", selectedGig.getDescription());
-        System.out.println("+---------------------------------------------+\033[0m");
-
+        // Updating title
         System.out.print("\033[93mEnter new gig title (leave blank to keep unchanged, or enter '0' to cancel): \033[0m");
         String title = scanner.nextLine().trim();
         if (title.equals("0")) {
             System.out.println("\033[93mCancelled updating a gig. Returning to main menu...\033[0m");
             return;
         }
-        if (!title.isEmpty()) {
+        if (!title.isEmpty() && title.matches("^[a-zA-Z0-9\s,.!?']+$")) {
             selectedGig.setTitle(title);
+        } else if (!title.isEmpty()) {
+            System.out.println("\033[93mInvalid input. Title not updated.\033[0m");
         }
 
+        // Updating description
         System.out.print("\033[93mEnter new gig description (leave blank to keep unchanged, or enter '0' to cancel): \033[0m");
         String description = scanner.nextLine().trim();
         if (description.equals("0")) {
             System.out.println("\033[93mCancelled updating a gig. Returning to main menu...\033[0m");
             return;
         }
-        if (!description.isEmpty()) {
+        if (!description.isEmpty() && description.matches("^[a-zA-Z0-9\s,.!?']+$")) {
             selectedGig.setDescription(description);
+        } else if (!description.isEmpty()) {
+            System.out.println("\033[93mInvalid input. Description not updated.\033[0m");
         }
 
+        // Updating location
         System.out.print("\033[93mEnter new location (leave blank to keep unchanged, or enter '0' to cancel): \033[0m");
         String location = scanner.nextLine().trim();
         if (location.equals("0")) {
             System.out.println("\033[93mCancelled updating a gig. Returning to main menu...\033[0m");
             return;
         }
-        if (!location.isEmpty()) {
+        if (!location.isEmpty() && location.matches("^[a-zA-Z0-9\s,]+$")) {
             selectedGig.setLocation(location);
+        } else if (!location.isEmpty()) {
+            System.out.println("\033[93mInvalid input. Location not updated.\033[0m");
         }
 
+        // Updating pay rate
         System.out.print("\033[93mEnter new pay rate (leave blank to keep unchanged, or enter '0' to cancel): \033[0m");
         String payRateInput = scanner.nextLine().trim();
         if (payRateInput.equals("0")) {
@@ -229,7 +278,11 @@ public class GigService {
         if (!payRateInput.isEmpty()) {
             try {
                 double payRate = Double.parseDouble(payRateInput);
-                selectedGig.setPayRate(payRate);
+                if (payRate >= 1) {
+                    selectedGig.setPayRate(payRate);
+                } else {
+                    System.out.println("\033[93mPay rate must be at least RM1. Pay rate not updated.\033[0m");
+                }
             } catch (NumberFormatException e) {
                 System.out.println("\033[93mInvalid input. Pay rate not updated.\033[0m");
             }
@@ -238,7 +291,6 @@ public class GigService {
         boolean success = gigManager.updateGig(selectedGig);
         System.out.println(success ? "\033[93mGig updated successfully!\033[0m" : "\033[93mFailed to update gig.\033[0m");
     }
-
     public void deleteGig(User currentUser) {
         List<Gig> gigs = currentUser.isAdmin() ? gigManager.getAllGigs() : gigManager.getGigsByUser(currentUser.getUsername());
 
@@ -297,33 +349,57 @@ public class GigService {
         System.out.println(success ? "\033[31mGig deleted successfully!\033[0m" : "\033[31mFailed to delete gig.\033[0m");
     }
     public void manageGigs(User currentUser) {
-        List<Gig> gigs = gigManager.getGigsByUser(currentUser.getUsername());
+        // Fetch gigs: Admins see all, normal users see only their own
+        List<Gig> gigs = currentUser.isAdmin()
+                ? gigManager.getAllGigs()
+                : gigManager.getGigsByUser(currentUser.getUsername());
 
+        // Check if there are no gigs to manage
         if (gigs.isEmpty()) {
-            System.out.println("You have no gigs to manage.");
+            System.out.println("\033[93m" + (currentUser.isAdmin() ? "No gigs available to manage." : "You have no gigs to manage.") + "\033[0m");
             return;
         }
 
+        // Display available gigs
         System.out.println("\nYour Gigs:");
-        System.out.println("+-----+----------------------+-----------------+");
-        System.out.println("| No. | Title                | Location        |");
-        System.out.println("+-----+----------------------+-----------------+");
+        System.out.println("+-----+----------------------+-----------------+------------+-----------------+");
+        System.out.println("| No. | Title                | Location        | Pay Rate   | Posted By       |");
+        System.out.println("+-----+----------------------+-----------------+------------+-----------------+");
         for (int i = 0; i < gigs.size(); i++) {
             Gig gig = gigs.get(i);
-            System.out.format("| %-3d | %-20s | %-15s |%n",
-                    i + 1, truncate(gig.getTitle(), 20), truncate(gig.getLocation(), 15));
+            System.out.format("| %-3d | %-20s | %-15s | RM%-8.2f | %-15s |%n",
+                    i + 1,
+                    truncate(gig.getTitle(), 20),
+                    truncate(gig.getLocation(), 15),
+                    gig.getPayRate(),
+                    truncate(gig.getPostedBy(), 15));
         }
-        System.out.println("+-----+----------------------+-----------------+");
+        System.out.println("+-----+----------------------+-----------------+------------+-----------------+");
 
-        int choice = InputUtil.getNumericInput(0, gigs.size(),
-                "Enter the number of the gig you want to manage (or 0 to cancel):", 0);
+        // Prompt user to select a gig
+        System.out.println("\033[93mEnter the number of the gig you want to manage (or 0 to cancel): \033[0m");
+        int choice = InputUtil.getNumericInput(0, gigs.size());
 
         if (choice == 0) {
-            System.out.println("Cancelled managing gigs.");
+            System.out.println("\033[93mCancelled managing gigs. Returning to main menu...\033[0m");
             return;
         }
 
         Gig selectedGig = gigs.get(choice - 1);
+
+        // Display selected gig details
+        System.out.println("\033[93m+---------------------------------------------+");
+        System.out.println("|               SELECTED GIG DETAILS         |");
+        System.out.println("+---------------------------------------------+");
+        System.out.format("| %-15s: %-37s |%n", "Title", selectedGig.getTitle());
+        System.out.format("| %-15s: %-37s |%n", "Location", selectedGig.getLocation());
+        System.out.format("| %-15s: RM%-35.2f |%n", "Pay Rate", selectedGig.getPayRate());
+        System.out.format("| %-15s: %-37s |%n", "Posted By", selectedGig.getPostedBy());
+        System.out.format("| %-15s: %-37s |%n", "Description", selectedGig.getDescription());
+        System.out.println("+---------------------------------------------+\033[0m");
+
+        // Manage applications for the selected gig
+        System.out.println("\033[93mManaging applications for this gig...\033[0m");
         applicationService.manageApplicationsForGig(selectedGig, currentUser);
     }
 
@@ -412,41 +488,6 @@ public class GigService {
         return availableGigs != null ? availableGigs.size() : 0;
     }
 
-    public void manageGigsAdmin(User currentUser) {
-        List<Gig> gigs = gigManager.getAllGigs();
-
-        if (gigs.isEmpty()) {
-            System.out.println("\033[93mNo gigs available to manage.\033[0m");
-            return;
-        }
-
-        System.out.println("\033[93m\nAll Gigs:");
-        // Display gigs in a table format
-        String format = "| %-3s | %-20s | %-15s | %-15s |%n";
-        System.out.format("+-----+----------------------+-----------------+-----------------+%n");
-        System.out.format("| No. | Title                | Location        | Posted By       |%n");
-        System.out.format("+-----+----------------------+-----------------+-----------------+%n");
-        for (int i = 0; i < gigs.size(); i++) {
-            Gig gig = gigs.get(i);
-            System.out.format("\033[93m" + format + "\033[0m",
-                    i + 1,
-                    truncate(gig.getTitle(), 20),
-                    truncate(gig.getLocation(), 15),
-                    truncate(gig.getPostedBy(), 15));
-        }
-        System.out.format("\033[93m+-----+----------------------+-----------------+-----------------+\033[0m");
-
-        System.out.println("\033[93m\nEnter the number of the gig you want to manage (or 0 to cancel): \033[0m");
-        int choice = InputUtil.getNumericInput(0, gigs.size());
-
-        if (choice == 0) {
-            System.out.println("\033[93mCancelled managing gigs.\033[0m");
-            return;
-        }
-
-        Gig selectedGig = gigs.get(choice - 1);
-        applicationService.manageApplicationsForGig(selectedGig, currentUser);
-    }
 
     // Utility method to truncate strings for table display
     private String truncate(String value, int length) {

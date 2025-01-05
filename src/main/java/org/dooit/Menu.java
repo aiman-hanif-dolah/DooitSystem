@@ -1,7 +1,5 @@
 package org.dooit;
 
-import java.util.Scanner;
-
 public class Menu {
 
     private static GigService gigService = new GigService();
@@ -40,8 +38,7 @@ public class Menu {
 
             // Get user input
             int maxOption = currentUser.isAdmin() ? 8 : 8;
-            System.out.print("\033[35mEnter your choice: \033[0m");
-            int choice = InputUtil.getNumericInput(0, maxOption);
+            int choice = InputUtil.getNumericInput(0, maxOption, "\033[35mEnter your choice: \033[0m");
 
             // Handle user choice
             switch (choice) {
@@ -65,18 +62,18 @@ public class Menu {
                 case 4 -> gigService.updateGig(currentUser);
                 case 5 -> gigService.deleteGig(currentUser);
                 case 6 -> {
-                    if (currentUser.isAdmin()) {
-                        viewAnalytics();
+                    if (!currentUser.isAdmin()) {
+                        gigService.manageGigs(currentUser); // Normal users manage their own gigs
                     } else {
-                        gigService.manageGigs(currentUser);
+                        viewAnalytics(); // Admins view analytics
                     }
                 }
                 case 7 -> {
                     if (currentUser.isAdmin()) {
-                        gigService.manageGigsAdmin(currentUser); // Admin-specific action
+                        gigService.manageGigs(currentUser); // Admins manage all gigs
                     } else {
                         System.out.println("\033[35mLogged out.\033[0m");
-                        return null; // Logout, return to login/register menu
+                        return null; // Logout for normal users
                     }
                 }
                 case 8 -> {

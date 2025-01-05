@@ -31,7 +31,6 @@ public class InputUtil {
         return getNumericInput(min, max); // Calls the original method
     }
 
-    // New overloaded method for optional default values
     public static int getNumericInput(int min, int max, String prompt, int defaultValue) {
         System.out.println(prompt + " (Press Enter to select default: " + defaultValue + ")");
         String input = scanner.nextLine().trim();
