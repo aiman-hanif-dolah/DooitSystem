@@ -5,7 +5,6 @@ import com.google.cloud.firestore.*;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
@@ -133,12 +132,6 @@ public class GigManager {
             System.err.println("Error getting gig count: " + e.getMessage());
             return 0;
         }
-    }
-
-    public List<Gig> getSortedGigsByPayRate() {
-        List<Gig> gigs = getAllGigs();
-        gigs.sort(Comparator.comparingDouble(Gig::getPayRate).reversed());
-        return gigs;
     }
 
 }

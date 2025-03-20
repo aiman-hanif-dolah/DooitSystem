@@ -160,7 +160,7 @@ public class GigService {
         System.out.println("4. By Posted By (Alphabetical)");
         System.out.println("5. Default Order (No Sorting)");
         System.out.print("Enter your choice: \033[0m");
-        int sortOption = InputUtil.getNumericInput(0, 5);
+        int sortOption = InputUtil.getNumericInput(0, 5, "Choose sorting order (0 to 5):");
 
         // Apply sorting or return to menu
         switch (sortOption) {
@@ -193,6 +193,23 @@ public class GigService {
                     truncate(gig.getPostedBy(), 15));
         }
         System.out.println("\033[95m+-----+----------------------+-----------------+------------+-----------------+\033[0m");
+
+        // Prompt user to select a gig
+        System.out.println("\033[33mEnter the number of the gig you want to apply for (or 0 to cancel): \033[0m");
+        int choice = InputUtil.getNumericInput(0, gigs.size());
+
+        if (choice == 0) {
+            System.out.println("\033[33mCancelled application. Returning to the main menu...\033[0m");
+            return;
+        }
+
+        Gig selectedGig = gigs.get(choice - 1); // Select from the sorted list
+
+        // Pass the selected gig and sorted list to applyForGig
+        boolean continueApplying = applyForGig(currentUser, selectedGig, gigs);
+        if (!continueApplying) {
+            System.out.println("\033[33mApplication process completed. Returning to main menu...\033[0m");
+        }
     }
 
     public void updateGig(User currentUser) {
@@ -403,16 +420,7 @@ public class GigService {
         applicationService.manageApplicationsForGig(selectedGig, currentUser);
     }
 
-    public boolean applyForGig(User currentUser, int selectedGigIndex) {
-        List<Gig> availableGigs = gigManager.getAvailableGigs();
-
-        if (selectedGigIndex < 1 || selectedGigIndex > availableGigs.size()) {
-            System.out.println("\033[36mInvalid gig selection. Returning to the gig list.\033[0m");
-            return true; // Allow the user to try again
-        }
-
-        Gig selectedGig = availableGigs.get(selectedGigIndex - 1);
-
+    public boolean applyForGig(User currentUser, Gig selectedGig, List<Gig> sortedGigs) {
         // Display selected gig details
         System.out.println("\033[36m+---------------------------------------------+");
         System.out.println("|               SELECTED GIG DETAILS         |");
@@ -443,15 +451,7 @@ public class GigService {
 
         // Check if the user has already applied for the gig
         if (applicationService.hasUserApplied(currentUser, selectedGig.getGigId())) {
-            System.out.println("\033[36m+---------------------------------------------+");
-            System.out.println("|     You have already applied for this gig   |");
-            System.out.println("+---------------------------------------------+");
-            System.out.format("| %-15s: %-37s |%n", "Title", selectedGig.getTitle());
-            System.out.format("| %-15s: %-37s |%n", "Location", selectedGig.getLocation());
-            System.out.format("| %-15s: RM%-35.2f |%n", "Pay Rate", selectedGig.getPayRate());
-            System.out.format("| %-15s: %-37s |%n", "Posted By", selectedGig.getPostedBy());
-            System.out.format("| %-15s: %-37s |%n", "Description", selectedGig.getDescription());
-            System.out.println("+---------------------------------------------+\033[0m");
+            System.out.println("\033[36mYou have already applied for this gig.\033[0m");
             return true; // Allow the user to try again
         }
 
@@ -483,13 +483,7 @@ public class GigService {
         return false; // Return to the main menu after successful application
     }
 
-    public int getGigCount() {
-        List<Gig> availableGigs = gigManager.getAvailableGigs();
-        return availableGigs != null ? availableGigs.size() : 0;
-    }
 
-
-    // Utility method to truncate strings for table display
     private String truncate(String value, int length) {
         if (value == null) {
             return "";

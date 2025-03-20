@@ -38,26 +38,12 @@ public class Menu {
 
             // Get user input
             int maxOption = currentUser.isAdmin() ? 8 : 8;
-            int choice = InputUtil.getNumericInput(0, maxOption, "\033[35mEnter your choice: \033[0m");
+            int choice = InputUtil.getNumericInput(0, maxOption, "\033[35mEnter your choice: \033[0m", 0);
 
             // Handle user choice
             switch (choice) {
                 case 1 -> gigService.createGig(currentUser);
-                case 2 -> {
-                    boolean continueApplying = true;
-                    while (continueApplying) {
-                        gigService.viewAllGigs(currentUser);
-                        System.out.println("\n\033[35mEnter the number of the gig you want to apply for (or 0 to cancel): \033[0m");
-                        int selectedGig = InputUtil.getNumericInput(0, gigService.getGigCount());
-
-                        if (selectedGig == 0) {
-                            System.out.println("\033[35mCancelled application.\033[0m");
-                            continueApplying = false; // Exit the loop and return to the main menu
-                        } else {
-                            continueApplying = gigService.applyForGig(currentUser, selectedGig);
-                        }
-                    }
-                }
+                case 2 -> gigService.viewAllGigs(currentUser); // Displays gigs and handles the application process
                 case 3 -> applicationService.viewMyApplications(currentUser);
                 case 4 -> gigService.updateGig(currentUser);
                 case 5 -> gigService.deleteGig(currentUser);

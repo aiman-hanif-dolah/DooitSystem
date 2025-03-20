@@ -50,7 +50,7 @@ public class UserService {
         return currentUser;
     }
     private static User registerUser() {
-        System.out.println("\033[40m+---------------------------------------------+");
+        System.out.println("[+---------------------------------------------+");
         System.out.println("|                REGISTER USER                |");
         System.out.println("+-----+---------------------------------------+");
         System.out.format("| %-3s | %-37s |%n", "No.", "Field");

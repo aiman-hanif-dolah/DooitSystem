@@ -14,7 +14,7 @@ dependencies {
     // Firebase Admin SDK
     implementation("com.google.firebase:firebase-admin:9.1.1")
 
-    implementation ("org.json:json:20210307")
+    implementation ("org.json:json:20231013")
 
     // Google Cloud Firestore SDK
     implementation("com.google.cloud:google-cloud-firestore:3.5.0")
@@ -28,3 +28,17 @@ dependencies {
 tasks.test {
     useJUnitPlatform()
 }
+
+tasks.jar {
+    manifest {
+        attributes(
+            "Main-Class" to "org.dooit.Main" // Replace with your actual main class
+        )
+    }
+
+    from({
+        configurations.runtimeClasspath.get().map { if (it.isDirectory) it else zipTree(it) }
+    })
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+}
+

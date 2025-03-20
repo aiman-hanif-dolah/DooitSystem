@@ -2,7 +2,7 @@ package org.dooit;
 
 import com.google.cloud.firestore.annotation.PropertyName;
 
-public class Gig {
+public class Gig extends BaseEntity{
     private String gigId;
     private String title;
     private String description;
@@ -93,4 +93,15 @@ public class Gig {
     public void setAvailable(boolean available) {
         this.available = available;
     }
+    
+    @PropertyName("details")
+    public void setDetails(String details) {
+        // Stub setter to satisfy Firestore mapping. No actual implementation needed.
+    }
+
+	@Override
+	public String getDetails() {
+		// TODO Auto-generated method stub
+		return null;
+	}
 }
